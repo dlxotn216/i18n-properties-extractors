@@ -93,17 +93,17 @@ table.getRows().sort(Comparator.comparing(LocalePropertyRow::getMessageId));
 
 //rowIndex는 1부터 시작
 IntStream.rangeClosed(1, table.getRows().size())
-		.forEach(rowIndex -> {
-			Row row = sheet.createRow(rowIndex);
-			
-			LocalePropertyRow localePropertyRow = table.getRows().get(rowIndex - 1);
-			row.createCell(0).setCellValue(localePropertyRow.getMessageId());
-			
-			localePropertyRow.getElements()
-			.forEach(element ->
-				row.createCell(getColumnIndexByLocale(element.getLocale()))
-					.setCellValue(element.getMessage()));
-		});
+	.forEach(rowIndex -> {
+		Row row = sheet.createRow(rowIndex);
+		
+		LocalePropertyRow localePropertyRow = table.getRows().get(rowIndex - 1);
+		row.createCell(0).setCellValue(localePropertyRow.getMessageId());
+		
+		localePropertyRow.getElements()
+		.forEach(element ->
+			row.createCell(getColumnIndexByLocale(element.getLocale()))
+				.setCellValue(element.getMessage()));
+	});
 
 IntStream.rangeClosed(0, 6).forEach(sheet::autoSizeColumn);
 ```

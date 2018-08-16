@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Extract excel from i18n-properties</title>
+</head>
+<body>
+
+<form id="extractors" method="post" action="/extractors">
+    <button type="button" class="add-row">추가</button>
+    <button type="button" class="delete-row">삭제</button>
+    <button type="submit">Excel 파일 추출</button>
+    <table border="1" id="extractors-table">
+        <thead>
+        <tr>
+            <th>No</th>
+            <th>파일</th>
+            <th>Locale</th>
+        </tr>
+        </thead>
+        <tbody id="extractors-table-tbody">
+        <tr>
+            <td>0</td>
+            <td><input type="file" name="files[0]"/></td>
+            <td>
+                <select name="locales[0]" id="locale-selector">
+                    <option th:each="locale : ${locales}" th:value="${locale.language}" th:text="${locale.displayLanguage}">
+                    </option>
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+
+<script src="/js/extractors.js"></script>
+</body>
+</html>

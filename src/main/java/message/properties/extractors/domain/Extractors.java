@@ -47,11 +47,10 @@ public class Extractors {
 				});
 	}
 	
-	public LocalePropertyTable resolveToLocalePropertyTable() {
+	public LocalePropertyTable resolveToLocalePropertyTable(Stream<LocaleProperties> localePropertiesStream) {
 		LocalePropertyTable table = new LocalePropertyTable();
 		
-		this.resolveToProperties()
-				.forEach(localeProperties -> localeProperties.getProperties()
+		localePropertiesStream.forEach(localeProperties -> localeProperties.getProperties()
 						.forEach((key, value) -> table.addLocalePropertyRowElement(key.toString(), localeProperties.getLocale(), value.toString())));
 		
 		return table;

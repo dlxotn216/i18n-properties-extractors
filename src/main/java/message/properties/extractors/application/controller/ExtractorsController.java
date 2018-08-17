@@ -3,6 +3,7 @@ package message.properties.extractors.application.controller;
 import message.properties.extractors.application.dto.ExtractorsRequest;
 import message.properties.extractors.application.service.ExtractorsService;
 import message.properties.extractors.domain.Extractors;
+import message.properties.file.application.service.FileService;
 import message.properties.locale.application.service.LocaleService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,35 +21,40 @@ public class ExtractorsController {
 
     private ExtractorsService extractorsService;
     private LocaleService localeService;
-
-    public ExtractorsController(ExtractorsService extractorsService, LocaleService localeService) {
-        this.extractorsService = extractorsService;
-        this.localeService = localeService;
-    }
-
-    @GetMapping("extractors")
+    private FileService fileService;
+	
+	public ExtractorsController(ExtractorsService extractorsService, LocaleService localeService, FileService fileService) {
+		this.extractorsService = extractorsService;
+		this.localeService = localeService;
+		this.fileService = fileService;
+	}
+	
+	@GetMapping("extractors")
     public String getExtractorsView(Model model) {
         model.addAttribute("locales", localeService.getLocales());
         return "extractors";
     }
 
     @PostMapping("extractors")
-    public String exportExcelFromRequestPropertiesFile(ExtractorsRequest request) {
+    public String exportExcelFromRequestPropertiesFile(ExtractorsRequest request, Model model) {
         request.requestValidation();
-        return "export-excel-view";
+		Extractors extractors = extractorsService.addAllTargetPathFromUploadedFiles(request);
+		model.addAttribute("table", extractors.resolveToLocalePropertyTable(extractors.resolveToProperties()));
+		fileService.deleteFiles(extractors.getTargetFilePaths());
+		return "export-excel-view";
     }
 
     @GetMapping(value = "export-excel", produces = "application/vnd.ms-excel")
     public String export(Model model) {
         Extractors extractors = extractorsService.addAllTargetPathsInDirectory("download");
-        model.addAttribute("table", extractors.resolveToLocalePropertyTable());
+        model.addAttribute("table", extractors.resolveToLocalePropertyTable(extractors.resolveToProperties()));
         return "export-excel-view";
     }
 
     @GetMapping("export-excel.xls")
     public String get(Model model) {
         Extractors extractors = extractorsService.addAllTargetPathsInDirectory("download");
-        model.addAttribute("table", extractors.resolveToLocalePropertyTable());
+        model.addAttribute("table", extractors.resolveToLocalePropertyTable(extractors.resolveToProperties()));
         return "export-excel-view";
     }
 

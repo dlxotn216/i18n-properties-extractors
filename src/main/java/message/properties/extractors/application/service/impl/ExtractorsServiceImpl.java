@@ -1,8 +1,10 @@
 package message.properties.extractors.application.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import message.properties.extractors.application.dto.ExtractorsRequest;
 import message.properties.extractors.application.service.ExtractorsService;
 import message.properties.extractors.domain.Extractors;
+import message.properties.file.application.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,8 +27,23 @@ public class ExtractorsServiceImpl implements ExtractorsService {
 	
 	private final PathMatcher propertiesFileMatcher = FileSystems.getDefault().getPathMatcher("glob:**.{properties}");
 	
-	@Autowired
 	private ServletContext servletContext;
+	private FileService fileService;
+	
+	public ExtractorsServiceImpl(ServletContext servletContext, FileService fileService) {
+		this.servletContext = servletContext;
+		this.fileService = fileService;
+	}
+	
+	@Override
+	public Extractors addAllTargetPathFromUploadedFiles(ExtractorsRequest request) {
+		final Extractors extractors = new Extractors();
+		fileService.uploadFiles(request.getFiles())
+				.forEach(extractors::addTargetPath);
+		
+		return extractors;
+		
+	}
 	
 	@Override
 	public Extractors addAllTargetPathsInDirectory(String relativePath) {
@@ -75,8 +92,7 @@ public class ExtractorsServiceImpl implements ExtractorsService {
 	@Override
 	public Extractors addAllTargetPaths(String... relativePaths) {
 		Extractors extractors = new Extractors();
-		Arrays.asList(relativePaths).forEach(relativePath 
-				-> extractors.addTargetPath(Paths.get(servletContext.getRealPath("/")).resolve(relativePath)));
+		Arrays.asList(relativePaths).forEach(relativePath -> extractors.addTargetPath(Paths.get(servletContext.getRealPath("/")).resolve(relativePath)));
 		return extractors;
 	}
 	

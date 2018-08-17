@@ -1,6 +1,7 @@
 package message.properties.common.application.view;
 
 import message.properties.extractors.application.dto.LocalePropertyRow;
+import message.properties.extractors.application.dto.LocalePropertyRowElement;
 import message.properties.extractors.application.dto.LocalePropertyTable;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -37,19 +40,29 @@ public class ExcelExportView extends AbstractXlsView {
 		DataFormat numberDataFormat = workbook.createDataFormat();
 		numberCellStyle.setDataFormat(numberDataFormat.getFormat("#,##0"));
 		
-		Sheet sheet = workbook.createSheet("i18n");
-		
-		//Initial
-		Row headerRow = sheet.createRow(0);
-		headerRow.createCell(0).setCellValue("Message ID");
-		headerRow.createCell(getColumnIndexByLocale(new Locale("base"))).setCellValue(new Locale("base").getDisplayName());
-		headerRow.createCell(getColumnIndexByLocale(Locale.ENGLISH)).setCellValue(Locale.ENGLISH.getDisplayName());
-		headerRow.createCell(getColumnIndexByLocale(Locale.KOREA)).setCellValue(Locale.KOREA.getDisplayName());
-		headerRow.createCell(getColumnIndexByLocale(Locale.SIMPLIFIED_CHINESE)).setCellValue(Locale.SIMPLIFIED_CHINESE.getDisplayName());
-		headerRow.createCell(getColumnIndexByLocale(Locale.JAPAN)).setCellValue(Locale.JAPAN.getDisplayName());
-		
+		//sorting
 		table.getRows().sort(Comparator.comparing(LocalePropertyRow::getMessageId));
 		
+		final List<Locale> locales = table.getRows().stream()
+				.flatMap(localePropertyRow -> localePropertyRow.getElements().stream().map(LocalePropertyRowElement::getLocale))
+				.distinct()
+				.collect(Collectors.toList());
+		
+		Sheet sheet = workbook.createSheet("i18n");
+		initHeaderColumns(sheet, locales);
+		renderExcelRows(sheet, table, locales);
+	}
+	
+	private void initHeaderColumns(Sheet sheet, List<Locale> locales) {
+		//Init Header Columns
+		Row headerRow = sheet.createRow(0);
+		headerRow.createCell(0).setCellValue("Message ID");
+		
+		IntStream.rangeClosed(1, locales.size())
+				.forEach(columnIndex -> headerRow.createCell(columnIndex).setCellValue(locales.get(columnIndex - 1).getDisplayName()));
+	}
+	
+	private void renderExcelRows(Sheet sheet, LocalePropertyTable table, List<Locale> locales) {
 		//rowIndex는 1부터 시작
 		IntStream.rangeClosed(1, table.getRows().size())
 				.forEach(rowIndex -> {
@@ -58,28 +71,22 @@ public class ExcelExportView extends AbstractXlsView {
 					LocalePropertyRow localePropertyRow = table.getRows().get(rowIndex - 1);
 					row.createCell(0).setCellValue(localePropertyRow.getMessageId());
 					
+					//columnIndex 1 이후부터 데이터 set
 					localePropertyRow.getElements()
-							.forEach(element ->
-									row.createCell(getColumnIndexByLocale(element.getLocale())).setCellValue(element.getMessage()));
+							.forEach(element -> row.createCell(getColumnIndexByLocale(locales, element.getLocale()) + 1)
+													.setCellValue(element.getMessage()));
 				});
 		
+		//resize all columns
 		IntStream.rangeClosed(0, 6).forEach(sheet::autoSizeColumn);
-		
 	}
 	
-	private Integer getColumnIndexByLocale(Locale locale) {
-		if(locale.getDisplayName().equals(new Locale("base").getDisplayName())) {
-			return 1;
-		} else if(locale.getDisplayName().equals(Locale.ENGLISH.getDisplayName())) {
-			return 2;
-		} else if(locale.getDisplayName().equals(Locale.KOREA.getDisplayName())) {
-			return 3;
-		} else if(locale.getDisplayName().equals(Locale.SIMPLIFIED_CHINESE.getDisplayName())) {
-			return 4;
-		} else if(locale.getDisplayName().equals(Locale.JAPAN.getDisplayName())) {
-			return 5;
-		} else {
-			return 6;
+	private Integer getColumnIndexByLocale(List<Locale> locales, Locale locale) {
+		for(int i = 0, length = locales.size(); i < length; i++) {
+			if(locales.get(i) == locale) {
+				return i;
+			}
 		}
+		return -1;
 	}
 }

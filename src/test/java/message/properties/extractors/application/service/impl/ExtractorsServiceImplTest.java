@@ -71,7 +71,7 @@ public class ExtractorsServiceImplTest {
 		Extractors extractors = extractorsService.addAllTargetPathsInDirectory("download");
 		
 		//Then
-		LocalePropertyTable table = extractors.resolveToLocalePropertyTable();
+		LocalePropertyTable table = extractors.resolveToLocalePropertyTable(extractors.resolveToProperties());
 		table.getRows().stream()
 				.sorted(Comparator.comparing(LocalePropertyRow::getMessageId))
 				.forEach(localePropertyRow -> {

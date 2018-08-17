@@ -1,5 +1,6 @@
 package message.properties.extractors.application.service;
 
+import message.properties.extractors.application.dto.ExtractorsRequest;
 import message.properties.extractors.domain.Extractors;
 
 /**
@@ -9,7 +10,9 @@ import message.properties.extractors.domain.Extractors;
  * @since 2018-08-14
  */
 public interface ExtractorsService {
-	Extractors addAllTargetPathsInDirectory( String relativePath);
+	Extractors addAllTargetPathFromUploadedFiles(ExtractorsRequest request);
+	
+	Extractors addAllTargetPathsInDirectory(String relativePath);
 	
 	Extractors addAllTargetPaths(String... relativePaths);
 	

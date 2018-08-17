@@ -17,6 +17,7 @@ import java.util.Optional;
 public class LocalePropertyTable {
 	private List<LocalePropertyRow> rows = new ArrayList<>();
 	
+	
 	public void addLocalePropertyRowElement(String messageId, Locale locale, String message) {
 		if(isCommentLine(messageId)){
 			return;

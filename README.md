@@ -1,6 +1,8 @@
-## Properties 파일 형식으로 관리하는 다국어 정보를 Excel 형태로 출력하는 프로젝트.
+ ## Properties 파일 형식으로 관리하는 다국어 정보를 Excel 형태로 출력하는 프로젝트.
 
-### 1. 사용법
+ ### 1. 사용법
+ 
+ #### 1.1 직접 특정 위치에 파일을 배치한 후 Excel export
 
  (1) /src/main/webapp/download 디렉토리 하위에   
  Application에서 사용하는 다국어 정보가 존재하는 properties 파일을 배치  
@@ -11,6 +13,21 @@
  (2) 프로젝트를 실행  
 
  (3) 브라우저에 localhost:8080/export-excel.xls 주소로 접속하여 Excel 파일을 다운로드
+ 
+ #### 1.2 웹 브라우저를 통해 파일 업로드를 하여 Excel export
+ 
+ (1) 프로젝트 실행
+ 
+ (2) localhost:8080/extractors 화면 접속  
+ <img src="https://raw.githubusercontent.com/dlxotn216/image/master/extractors_view.png" />  
+ 
+
+ (3) 추가 및 삭제 버튼을 통해 테이블 조작
+ 
+ (4) 파일 업로드 및 파일에 대한 Locale 선택
+ 
+ (5) Excel 추출 버튼 클릭  
+
   
   
  ### 2. 사용기술
@@ -20,7 +37,12 @@
  Directory 하위 검색 등의 File과 관련된 작업은 Java7의 API(Path, FileVisitor 등)을 사용
 
  (2) 프로젝트 환경  
- * Spring boot2.0 기반 WebMVC  
+ * Spring boot2.0
+ * Spring WebMVC
+ * Maven
+ * JUnit
+ * ecma 6
+ * thymeleaf
  * Apache POI  
  
  
@@ -28,32 +50,15 @@
  DDD Layer 위주로 구성
   
  ### 3. TODO List
- * properties 파일을 파일 업로드 형태로 받을 수 있도록 처리  
- * properties 파일 외에도 Java의 Properties 객체가 load 할 수 있는 파일에 대해서 처리  
- * Locale 정보를 _en, _jp, _ko, _cn 등의 하드코딩이 아닌 Java에서 정의한 Locale을 통해 처리하도록 개선
- * 파일 업로드를 지원한다면 Locale을 파일 명이 아닌 Request로부터 얻어오도록 처리
+ * properties 파일을 파일 업로드 형태로 받을 수 있도록 처리 (완료)  
+ * 파일 업로드를 지원한다면 Locale을 파일 명이 아닌 Request로부터 얻어오도록 처리 (완료)
  * Download URI에 .xls와 같이 확장자가 존재하는데 ContentNegotiatingViewResolver를   
-   관련 설정을 변경하여  Controller에서 반환하는 이름으로 View를 찾을 수 있도록 개선    
-   
-   -> 처리 완료  
-   BeanNameViewResolver의 순서를 ContentNegotiatingViewResolver 보다 앞에 적용    
+    관련 설정을 변경하여  Controller에서 반환하는 이름으로 View를 찾을 수 있도록 개선 (완료)
+ * properties 파일 외에도 Java의 Properties 객체가 load 할 수 있는 파일에 (XML 등) 대해서 처리   
+ * Locale 정보를 _en, _jp, _ko, _cn 등의 하드코딩이 아닌 Java에서 정의한 Locale을 통해 처리하도록 개선 
+    
 
-   
-   
-```java
-@Configuration
-public class ViewResolverConfig {
-	@Bean
-	public ViewResolver viewResolver(){
-		BeanNameViewResolver beanNameViewResolver = new BeanNameViewResolver();
-		beanNameViewResolver.setOrder(0);
-		return beanNameViewResolver;
-	}
-}
-```
-	
-(Best practice는 AcceptHeader를 통해 요청 후 ContentNegotiatingViewResolver로 처리)
-
+  
 
  ### 4. ISSUE tracking
  (1) properties 파일을 Load한 후 encoding이 깨지는 문제 발생  

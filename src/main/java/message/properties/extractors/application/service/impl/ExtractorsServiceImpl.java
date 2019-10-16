@@ -38,9 +38,7 @@ public class ExtractorsServiceImpl implements ExtractorsService {
 	@Override
 	public Extractors addAllTargetPathFromUploadedFiles(ExtractorsRequest request) {
 		final Extractors extractors = new Extractors();
-		fileService.uploadFiles(request.getFiles())
-				.forEach(extractors::addTargetPath);
-		
+		fileService.uploadFiles(request.getFiles()).forEach(extractors::addTargetPath);
 		return extractors;
 		
 	}

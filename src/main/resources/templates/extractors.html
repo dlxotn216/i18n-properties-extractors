@@ -25,8 +25,9 @@
             <td><input type="file" name="files[0]"/></td>
             <td>
                 <select name="locales[0]" id="locale-selector">
-                    <option th:each="locale : ${locales}" th:value="${locale.language}" th:text="${locale.displayLanguage}">
-                    </option>
+                    <option value="default">Default</option>
+                    <option th:each="locale : ${locales}" th:value="${locale.language}"
+                            th:text="${locale.displayLanguage}"></option>
                 </select>
             </td>
         </tr>
